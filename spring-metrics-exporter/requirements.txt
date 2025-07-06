@@ -1,0 +1,2 @@
+prometheus-client==0.22.1
+mysql-connector-python==9.3.0 
