@@ -21,10 +21,15 @@ Spring Boot 애플리케이션과 Prometheus Custom Exporter를 활용한 메트
 - Python 3.x
 - Java 17+ (Docker 사용 시 불필요)
 
-### 2. Spring Boot + MySQL 실행
+### 2. 프로젝트 클론
 ```bash
-# 프로젝트 클론 후
+# 프로젝트 클론
+git clone https://github.com/thzthix/spring-metrics-demo.git
 cd spring-metrics-demo
+```
+
+### 3. Spring Boot + MySQL 실행
+```bash
 
 # MySQL + Spring Boot 실행
 docker-compose up -d
@@ -33,7 +38,7 @@ docker-compose up -d
 curl http://localhost:8080/api/users
 ```
 
-### 3. Python Metrics Exporter 실행
+### 4. Python Metrics Exporter 실행
 ```bash
 # Python 패키지 설치
 cd spring-metrics-exporter
@@ -43,7 +48,7 @@ pip install -r requirements.txt
 python exporter.py
 ```
 
-### 4. 메트릭 확인
+### 5. 메트릭 확인
 ```bash
 # Prometheus 메트릭 확인
 curl http://localhost:8000/metrics
