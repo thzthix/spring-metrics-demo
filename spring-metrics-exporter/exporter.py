@@ -16,8 +16,8 @@ class Exporter:
         }
         try:
             self.db_connection = mysql.connector.connect(**self.db_config)
-            self.db_connection.autocommit = True  # 자동 커밋 활성화
             self.db_cursor = self.db_connection.cursor()
+            self.db_cursor.execute("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED")
         except mysql.connector.Error as e:
             print(f"Error connecting to MySQL: {e}")
             self.db_connection = None
