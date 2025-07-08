@@ -1,6 +1,6 @@
 # Spring Boot + Custom Metrics Exporter Demo
 
-Spring Boot 애플리케이션과 Prometheus Custom Exporter를 활용한 메트릭 수집 데모 프로젝트
+Spring Boot 애플리케이션과 Prometheus Custom Exporter를 활용한 **실시간 메트릭 수집** 데모 프로젝트
 
 ## 프로젝트 구조
 ```
@@ -8,50 +8,69 @@ Spring Boot 애플리케이션과 Prometheus Custom Exporter를 활용한 메트
 ├── src/                        # Spring Boot 애플리케이션
 │   └── main/java/com/example/demo/
 ├── spring-metrics-exporter/    # Python Prometheus Exporter
-│   ├── exporter.py
-│   ├── requirements.txt
-│   └── README.md
+│   ├── exporter.py            # 실시간 메트릭 수집기 (autocommit=True)
+│   └── requirements.txt
 └── README.md                   # 이 파일
 ```
+
+## ✨ 주요 특징
+- 🚀 **실시간 메트릭 업데이트**: 사용자 추가 시 1-2초 내 자동 반영
+- 🔄 **MySQL autocommit**: 트랜잭션 격리 수준 문제 해결
+- 📊 **Prometheus 호환**: 표준 메트릭 형식으로 노출
+- 🐳 **Docker 기반**: 간편한 환경 구성
 
 ## 실행 방법
 
 ### 1. 사전 요구사항
 - Docker & Docker Compose
 - Python 3.x
-- Java 17+ (Docker 사용 시 불필요)
+- pip (또는 python3-pip)
 
 ### 2. 프로젝트 클론
 ```bash
-# 프로젝트 클론
 git clone https://github.com/thzthix/spring-metrics-demo.git
 cd spring-metrics-demo
 ```
 
-### 3. Spring Boot + MySQL 실행
+### 3. 첫 번째 실행 (초기 설정)
 ```bash
-
 # MySQL + Spring Boot 실행
 docker-compose up -d
 
-# 앱 실행 확인
+# 앱 실행 확인 (빈 배열 반환됨)
 curl http://localhost:8080/api/users
 ```
 
-### 4. Python Metrics Exporter 실행
+### 4. 재실행 시 (컨테이너 중복 방지)
+```bash
+# 기존 컨테이너 정리 후 재실행
+docker-compose down
+docker-compose up -d
+
+# 또는 개별 컨테이너 재시작
+docker restart mysql_asac spring_app
+```
+
+### 5. Python Metrics Exporter 실행
 ```bash
 # Python 패키지 설치
 cd spring-metrics-exporter
+
+# pip 설치 (필요한 경우)
+curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+python3 get-pip.py --user
+export PATH=$PATH:~/.local/bin
+
 pip install -r requirements.txt
 
-# Exporter 실행
-python exporter.py
+# Exporter 실행 (백그라운드)
+python3 exporter.py &
 ```
 
-### 5. 메트릭 확인
+### 6. 메트릭 확인
 ```bash
 # Prometheus 메트릭 확인
-curl http://localhost:8000/metrics
+curl http://localhost:8000/metrics | grep user_count
 ```
 
 ## 테스트 시나리오
