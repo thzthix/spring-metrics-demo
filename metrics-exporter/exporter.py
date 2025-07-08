@@ -2,27 +2,42 @@ from prometheus_client import start_http_server, Gauge
 import time
 import mysql.connector
 import decimal
+import os
 
 class Exporter:
     def __init__(self):
         self.users_count_by_group = Gauge('user_count_by_group', 'Number of user by group',['job'])
         self.total_users = Gauge('user_count', 'Number of user')
         self.db_config = {
-            "host": "localhost",
-            "port": 3306,
-            "user": "asac",
-            "password": "1234",
-            "database": "asac"
+            "host": os.getenv("DB_HOST", "localhost"),
+            "port": int(os.getenv("DB_PORT", "3306")),
+            "user": os.getenv("DB_USER", "asac"),
+            "password": os.getenv("DB_PASSWORD", "1234"),
+            "database": os.getenv("DB_NAME", "asac")
         }
-        try:
-            self.db_connection = mysql.connector.connect(**self.db_config)
-            self.db_cursor = self.db_connection.cursor()
-            self.db_cursor.execute("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED")
-        except mysql.connector.Error as e:
-            print(f"Error connecting to MySQL: {e}")
-            self.db_connection = None
-            self.db_cursor = None
-            raise(e)
+        self.db_connection = None
+        self.db_cursor = None
+        self.connect_with_retry()
+    
+    def connect_with_retry(self, max_retries=30, delay=2):
+        """Connect to MySQL with retry logic"""
+        for attempt in range(max_retries):
+            try:
+                print(f"Attempting to connect to MySQL (attempt {attempt + 1}/{max_retries})")
+                self.db_connection = mysql.connector.connect(**self.db_config)
+                self.db_cursor = self.db_connection.cursor()
+                self.db_cursor.execute("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED")
+                print("Successfully connected to MySQL!")
+                return
+            except mysql.connector.Error as e:
+                print(f"Connection failed: {e}")
+                if attempt < max_retries - 1:
+                    print(f"Retrying in {delay} seconds...")
+                    time.sleep(delay)
+                else:
+                    print("Max retries reached. Exiting.")
+                    raise e
+
     def collect_metrics(self):
         if self.db_connection is None or self.db_cursor is None:
             print("Database connection not established")
