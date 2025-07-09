@@ -59,6 +59,15 @@ class Exporter:
             print(f"Metrics updated: total={total_users}, by_group={current_user}")
         except Exception as e:
             print(f"Error collecting metrics: {e}")
+            # 트랜잭션 오류 시 롤백 및 재연결
+            try:
+                self.db_connection.rollback()
+            except:
+                pass
+            try:
+                self.connect_with_retry()
+            except:
+                pass
 
     def get_all_users(self):
         self.db_cursor.execute("SELECT job, COUNT(*) as count FROM users GROUP BY job")
