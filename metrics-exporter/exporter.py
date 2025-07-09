@@ -26,7 +26,7 @@ class Exporter:
                 print(f"Attempting to connect to MySQL (attempt {attempt + 1}/{max_retries})")
                 self.db_connection = mysql.connector.connect(**self.db_config)
                 self.db_cursor = self.db_connection.cursor()
-                # self.db_cursor.execute("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED")
+                self.db_cursor.execute("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED")
                 print("Successfully connected to MySQL!")
                 return
             except mysql.connector.Error as e:
