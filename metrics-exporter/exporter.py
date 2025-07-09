@@ -1,6 +1,6 @@
 from prometheus_client import start_http_server, Gauge
 import time
-import mysql.connector
+import psycopg2
 import decimal
 import os
 
@@ -10,7 +10,7 @@ class Exporter:
         self.total_users = Gauge('user_count', 'Number of user')
         self.db_config = {
             "host": os.getenv("DB_HOST", "localhost"),
-            "port": int(os.getenv("DB_PORT", "3306")),
+            "port": int(os.getenv("DB_PORT", "5432")),
             "user": os.getenv("DB_USER", "asac"),
             "password": os.getenv("DB_PASSWORD", "1234"),
             "database": os.getenv("DB_NAME", "asac")
@@ -20,16 +20,16 @@ class Exporter:
         self.connect_with_retry()
     
     def connect_with_retry(self, max_retries=30, delay=2):
-        """Connect to MySQL with retry logic"""
+        """Connect to PostgreSQL with retry logic"""
         for attempt in range(max_retries):
             try:
-                print(f"Attempting to connect to MySQL (attempt {attempt + 1}/{max_retries})")
-                self.db_connection = mysql.connector.connect(**self.db_config)
+                print(f"Attempting to connect to PostgreSQL (attempt {attempt + 1}/{max_retries})")
+                self.db_connection = psycopg2.connect(**self.db_config)
                 self.db_cursor = self.db_connection.cursor()
-                self.db_cursor.execute("SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED")
-                print("Successfully connected to MySQL!")
+                self.db_cursor.execute("SET SESSION CHARACTERISTICS AS TRANSACTION ISOLATION LEVEL READ COMMITTED")
+                print("Successfully connected to PostgreSQL!")
                 return
-            except mysql.connector.Error as e:
+            except psycopg2.Error as e:
                 print(f"Connection failed: {e}")
                 if attempt < max_retries - 1:
                     print(f"Retrying in {delay} seconds...")

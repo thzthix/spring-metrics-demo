@@ -1,19 +1,17 @@
 version: '3.8'
 
 services:
-  mysql:
-    image: mysql:8.0
-    container_name: mysql_asac
+  postgres:
+    image: postgres:15
+    container_name: postgres_asac
     environment:
-      MYSQL_ROOT_PASSWORD: 1234
-      MYSQL_DATABASE: asac
-      MYSQL_USER: asac
-      MYSQL_PASSWORD: 1234
+      POSTGRES_DB: asac
+      POSTGRES_USER: asac
+      POSTGRES_PASSWORD: 1234
     ports:
-      - "3306:3306"
+      - "5432:5432"
     volumes:
-      - mysql_data:/var/lib/mysql
-    command: --default-authentication-plugin=mysql_native_password
+      - postgres_data:/var/lib/postgresql/data
 
   app:
     image: gradle:7.6-jdk17
@@ -24,9 +22,9 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - mysql
+      - postgres
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/asac?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/asac
     command: gradle bootRun --no-daemon
 
   metrics-exporter:
@@ -35,11 +33,11 @@ services:
     ports:
       - "8000:8000"
     depends_on:
-      - mysql
+      - postgres
       - app
     environment:
-      - DB_HOST=mysql
-      - DB_PORT=3306
+      - DB_HOST=postgres
+      - DB_PORT=5432
       - DB_USER=asac
       - DB_PASSWORD=1234
       - DB_NAME=asac
@@ -62,4 +60,4 @@ services:
       - metrics-exporter
 
 volumes:
-  mysql_data:
+  postgres_data:
