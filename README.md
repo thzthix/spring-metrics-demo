@@ -11,7 +11,7 @@ Spring Boot 애플리케이션과 Prometheus Custom Exporter를 활용한 **실�
 │   └── ...
 ├── metrics-exporter/           # Python Prometheus Exporter 모듈
 │   ├── Dockerfile             # Python 컨테이너 설정
-│   ├── exporter.py            # 실시간 메트릭 수집기 (READ COMMITTED)
+│   ├── exporter.py            # 실시간 메트릭 수집기 (PostgreSQL READ COMMITTED)
 │   └── requirements.txt
 ├── monitoring/                 # 모니터링 설정 모듈
 │   └── prometheus.yml         # Prometheus 설정 파일
@@ -20,8 +20,8 @@ Spring Boot 애플리케이션과 Prometheus Custom Exporter를 활용한 **실�
 
 ## ✨ 주요 특징
 - 🚀 **실시간 메트릭 업데이트**: 사용자 추가 시 1-2초 내 자동 반영
-- 🔄 **MySQL READ COMMITTED**: 트랜잭션 격리 수준 문제 해결
-- 📊 **완전한 모니터링 스택**: Spring Boot + MySQL + Python Exporter + Prometheus
+- 🔄 **PostgreSQL READ COMMITTED**: 트랜잭션 격리 수준 문제 해결
+- 📊 **완전한 모니터링 스택**: Spring Boot + PostgreSQL + Python Exporter + Prometheus
 - 🏗️ **모듈화된 마이크로서비스**: 각 컴포넌트별 독립적 컨테이너
 - 🐳 **원클릭 실행**: docker-compose up -d로 전체 시스템 구동
 
@@ -38,7 +38,7 @@ cd spring-metrics-demo
 
 ### 3. 원클릭 실행
 ```bash
-# 전체 시스템 실행 (MySQL + Spring Boot + Python Exporter + Prometheus)
+# 전체 시스템 실행 (PostgreSQL + Spring Boot + Python Exporter + Prometheus)
 docker-compose up -d
 ```
 
@@ -101,13 +101,13 @@ user_count_by_group{job="ENGINEER"} 3.0
 
 ## 포트 정보
 - **Spring Boot**: 8080
-- **MySQL**: 3306  
+- **PostgreSQL**: 5432  
 - **Python Metrics Exporter**: 8000
 - **Prometheus**: 9090
 
 ## 학습 목표
 1. Spring Boot REST API 개발
-2. MySQL 데이터베이스 연동
+2. PostgreSQL 데이터베이스 연동
 3. Prometheus Custom Exporter 개발
 4. 실시간 메트릭 수집 및 모니터링
 5. Docker Compose를 활용한 완전한 모니터링 스택 구성
@@ -115,13 +115,13 @@ user_count_by_group{job="ENGINEER"} 3.0
 
 ## 트러블슈팅
 
-### MySQL 연결 오류
+### PostgreSQL 연결 오류
 ```bash
-# MySQL 컨테이너 상태 확인
+# PostgreSQL 컨테이너 상태 확인
 docker-compose ps
 
 # 로그 확인
-docker-compose logs mysql
+docker-compose logs postgres
 ```
 
 ### Prometheus 접속 문제
@@ -140,6 +140,13 @@ python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
+
+## 기술 스택
+- **Backend**: Spring Boot 3.3 + JPA
+- **Database**: PostgreSQL 17
+- **Metrics**: Prometheus + Custom Python Exporter (psycopg2)
+- **Container**: Docker + Docker Compose
+- **Language**: Java 17, Python 3.11
 
 ## 확장 아이디어
 - Grafana 대시보드 연동 (monitoring/ 디렉토리에 추가)
